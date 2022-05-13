@@ -21,11 +21,11 @@ def new_nn(n_features, n_input, n_output, n_hidden_list, randomize):
     return network
 
 
-def activate(sample, weights):
-    activation = weights[len(weights) - 1]
+def compute_weighted_sum(sample, weights):
+    weighted_sum = weights[len(weights) - 1]
     for i in range(0, len(weights) - 1):
-        activation += weights[i] * sample[i]
-    return activation
+        weighted_sum += weights[i] * sample[i]
+    return weighted_sum
 
 
 def forward_propagate(neural_network, sample, function):
@@ -33,19 +33,19 @@ def forward_propagate(neural_network, sample, function):
     for layer in neural_network:
         new_inputs = []
         for neuron in layer:
-            activation = activate(neuron['weights'], inputs)
-            neuron['output'] = transfer(activation, function)
+            weighted_sum = compute_weighted_sum(neuron['weights'], inputs)
+            neuron['output'] = apply_activation(weighted_sum, function)
             new_inputs.append(neuron['output'])
         inputs = new_inputs
     return inputs
 
 
-def transfer(activation, function):
-    return function(activation)
+def apply_activation(weighted_sum, function):
+    return function(weighted_sum)
 
 
-def transfer_derivative(output, derivative_function):
-    return derivative_function(output)
+def apply_activation_derivative(output, derivative_function):
+    return apply_activation(output, derivative_function)
 
 
 def relu(x):
@@ -72,12 +72,13 @@ def backpropagation(network, expected, derivative_function):
                 errors.append(neuron['output'] - expected)
         for j in range(len(layer)):
             neuron = layer[j]
-            neuron['correction'] = errors[j] * transfer_derivative(neuron['output'], derivative_function)
+            neuron['correction'] = errors[j] * apply_activation_derivative(neuron['output'], derivative_function)
 
 
 def train_network(neural_network, training_dataset, learning_rate, decadence,
                   n_max_epoch, function, derivative_function, precision, early_termination):
     min_error = float('inf')
+    min_epoch = 0
     for epoch in range(n_max_epoch):
         error = 0
         for sample in training_dataset:
