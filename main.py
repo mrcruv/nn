@@ -5,7 +5,7 @@ import numpy
 from sklearn import datasets
 
 
-def new_nn(n_features, n_input, n_output, n_hidden_list, randomize):
+def new_neural_network(n_features, n_input, n_output, n_hidden_list, randomize):
     network = list()
     n_hidden_layer = len(n_hidden_list)
     input_layer = [{'weights': [random() if randomize else 0 for _ in range(n_features + 1)]} for _ in range(n_input)]
@@ -69,7 +69,7 @@ def backpropagation(network, expected, derivative_function):
         else:
             for j in range(len(layer)):
                 neuron = layer[j]
-                errors.append(neuron['output'] - expected)
+                errors.append(expected - neuron['output'])
         for j in range(len(layer)):
             neuron = layer[j]
             neuron['correction'] = errors[j] * apply_activation_derivative(neuron['output'], derivative_function)
@@ -112,8 +112,8 @@ def update_weights(neural_network, sample, learning_rate):
             inputs = [neuron['output'] for neuron in neural_network[i - 1]]
         for neuron in neural_network[i]:
             for j in range(len(inputs)):
-                neuron['weights'][j] -= learning_rate * neuron['correction'] * inputs[j]
-            neuron['weights'][len(inputs)] -= learning_rate * neuron['correction']
+                neuron['weights'][j] += learning_rate * neuron['correction'] * inputs[j]
+            neuron['weights'][len(inputs)] += learning_rate * neuron['correction']
 
 
 def predict(neural_network, sample, activation_function):
@@ -122,7 +122,6 @@ def predict(neural_network, sample, activation_function):
 
 
 def main():
-    numpy.seterr(all="ignore")
     iris = datasets.load_iris()
     n_features = 4
     dataset = iris.data[:, :n_features]
@@ -135,7 +134,7 @@ def main():
     n_sample = len(dataset)
     early_termination = True
     normalize = True
-    seed(1)
+    seed(5)
     n_output = 1
     n_input = 5
     n_hidden_list = [5, 5, 5]
@@ -196,13 +195,15 @@ def main():
         sample.insert(n_features, tmp_test_dataset_labels[i])
         test_dataset.insert(i, sample)
 
-    network = new_nn(n_features, n_input, n_output, n_hidden_list, True)
+    network = new_neural_network(n_features, n_input, n_output, n_hidden_list, True)
     train_network(network, training_dataset, learning_rate, decadence, n_max_epoch,
                   function, function_derivative, precision, early_termination)
     # for layer in network:
     #     for neuron in layer:
-    #         print(neuron['weights'])
-    #     print()
+    #         print("[", end=" ")
+    #         for weight in neuron['weights']:
+    #             print(round(weight, precision), end=" ")
+    #         print("]")
 
     min_0, min_1, min_2 = float('inf'), float('inf'), float('inf')
     max_0, max_1, max_2 = 0, 0, 0
@@ -212,7 +213,7 @@ def main():
         sample = training_dataset[i]
         expected = training_dataset[i][len(sample) - 1]
         predicted = predict(network, sample, relu)[0]
-        # print("expected: " + str(expected) + " predicted: " + str(predicted))
+        # print("expected: " + str(expected) + " predicted: " + str(round(predicted, precision)))
         if expected == 0:
             mean_0 += predicted
             n_0 += 1
