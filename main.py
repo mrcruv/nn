@@ -33,7 +33,8 @@ def forward_propagate(neural_network, sample, function):
     for layer in neural_network:
         new_inputs = []
         for neuron in layer:
-            weighted_sum = compute_weighted_sum(neuron['weights'], inputs)
+            # weighted_sum = compute_weighted_sum(neuron['weights'], inputs)
+            weighted_sum = compute_weighted_sum(inputs, neuron['weights'])
             neuron['output'] = apply_activation(weighted_sum, function)
             new_inputs.append(neuron['output'])
         inputs = new_inputs
@@ -255,17 +256,17 @@ def main():
     accuracy *= 100
 
     print("NEURAL NETWORK | accuracy on test set: " + str(round(accuracy, precision)) + "%")
-    print("labels 0's mean: " + str(round(mean_0, precision)) +
-          ", labels 1's mean: " + str(round(mean_1, precision)) +
-          ", labels 2's mean: " + str(round(mean_2, precision)) +
-          ", \nlabels 0's min: " + str(round(min_0, precision)) +
-          ", labels 1's min: " + str(round(min_1, precision)) +
-          ", labels 2's min: " + str(round(min_2, precision)) +
-          ", \nlabels 0's max: " + str(round(max_0, precision)) +
-          ", labels 1's max: " + str(round(max_1, precision)) +
-          ", labels 2's max: " + str(round(max_2, precision)) +
-          ",\nthreshold_1: " + str(round(threshold_1, precision)) +
-          ", threshold_2: " + str(round(threshold_2, precision)) + ".")
+    # print("labels 0's mean: " + str(round(mean_0, precision)) +
+    #       ", labels 1's mean: " + str(round(mean_1, precision)) +
+    #       ", labels 2's mean: " + str(round(mean_2, precision)) +
+    #       ", \nlabels 0's min: " + str(round(min_0, precision)) +
+    #       ", labels 1's min: " + str(round(min_1, precision)) +
+    #       ", labels 2's min: " + str(round(min_2, precision)) +
+    #       ", \nlabels 0's max: " + str(round(max_0, precision)) +
+    #       ", labels 1's max: " + str(round(max_1, precision)) +
+    #       ", labels 2's max: " + str(round(max_2, precision)) +
+    #       ",\nthreshold_1: " + str(round(threshold_1, precision)) +
+    #       ", threshold_2: " + str(round(threshold_2, precision)) + ".")
 
 
 main()
